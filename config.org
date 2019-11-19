@@ -1,0 +1,70 @@
+* Melpa 
+** Package archives
+#+BEGIN_SRC emacs-lisp
+  (package-initialize)
+
+  (require 'package)
+  (add-to-list 'package-archives' ("melpa" . "http://melpa.org/packages/"))
+  (package-initialize)
+#+END_SRC
+
+* Terminal
+** Set bash ansi terminal to default
+#+BEGIN_SRC emacs-lisp
+  (defvar my-term-shell "/bin/bash")
+  (defadvice ansi-term (before force-bash)
+    (interactive (list my-term-shell)))
+  (ad-activate 'ansi-term)
+#+END_SRC
+** Set s + return to shortcut
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "<s-return>" )  'ansi-term)
+#+END_SRC
+** yes-or-no 
+#+BEGIN_SRC emacs-lisp
+  (defalias 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+*
+* Cursor
+** Highlight
+#+BEGIN_SRC emacs-lisp
+  (global-hl-line-mode t)
+#+END_SRC
+** Beacon
+#+BEGIN_SRC emacs-lisp
+  (use-package beacon
+    :ensure t
+    :init
+    (beacon-mode 1))
+#+END_SRC
+* Scroll 
+#+BEGIN_SRC emacs-lisp
+  (setq scroll-conservatively 100)
+#+END_SRC
+
+* Customize UI 
+** Inhibit startup message
+#+BEGIN_SRC emacs-lisp
+  (setq inhibit-startup-message t)
+#+END_SRC
+** Remove excess
+#+BEGIN_SRC emacs-lisp
+  (tool-bar-mode -1)
+  (menu-bar-mode -1)
+  (scroll-bar-mode -1)
+#+END_SRC
+* etc
+** Prettify symbols
+#+BEGIN_SRC emacs-lisp
+  (global-prettify-symbols-mode t)
+#+END_SRC
+* Python stuff
+**elpy
+#+BEGIN_SRC emacs-lisp
+  (defvar myPackages
+    '(better-defaults
+      elpy
+      material-theme
+      )
+    )
+#+END_SRC
