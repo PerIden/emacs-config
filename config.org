@@ -25,7 +25,7 @@
   (defalias 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
 *
-* Cursor
+* Cursor/typing
 ** Highlight
 #+BEGIN_SRC emacs-lisp
   (global-hl-line-mode t)
@@ -36,6 +36,18 @@
     :ensure t
     :init
     (beacon-mode 1))
+#+END_SRC
+** Subword
+#+BEGIN_SRC emacs-lisp
+  (global-subword-mode 1)
+#+END_SRC
+** auto-complete paranthesis
+#+BEGIN_SRC emacs-lisp
+  (setq electric-pair-pairs '(
+			      (?\( . ?\))
+			      (?\[ . ?\])
+			      ))
+  (electric-pair-mode t)
 #+END_SRC
 * Scroll 
 #+BEGIN_SRC emacs-lisp
@@ -58,8 +70,14 @@
 #+BEGIN_SRC emacs-lisp
   (global-prettify-symbols-mode t)
 #+END_SRC
+** Line number + column numbers
+#+BEGIN_SRC emacs-lisp
+  (line-number-mode 1)
+  (column-number-mode 1)
+#+END_SRC
+
 * Python stuff
-**elpy
+** elpy
 #+BEGIN_SRC emacs-lisp
   (defvar myPackages
     '(better-defaults
@@ -131,4 +149,28 @@
 	 (interactive)
 	 (org-babel-load-file (expand-file-name "~/.emacs.d/config.org")))
   (global-set-key (kbd "C-c r") 'config-reload)
+#+END_SRC
+
+* Dashboard
+#+BEGIN_SRC emacs-lisp
+  (use-package dashboard
+    :ensure t
+    :config
+    (dashboard-setup-startup-hook)
+    (setq dashboard-startup-banner "~/.emacs.d/saintignucius.jpg" )
+    (setq dashboard-items '((recents . 10)))
+    (setq dashboard-banner-logo-title "I am the bone of my sword"))
+#+END_SRC
+* Symon
+#+BEGIN_SRC emacs-lisp
+  (use-package symon
+    :ensure t
+    :bind
+   ( "M-ö" . symon-mode))
+#+END_SRC
+* Searching with swiper
+#+BEGIN_SRC emacs-lisp
+  (use-package swiper
+    :ensure t
+    :bind("C-s" . swiper))
 #+END_SRC
