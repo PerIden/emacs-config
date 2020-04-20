@@ -1,11 +1,11 @@
 * Melpa 
 ** Package archives
 #+BEGIN_SRC emacs-lisp
-  (package-initialize)
-
   (require 'package)
-  (add-to-list 'package-archives' ("melpa" . "http://melpa.org/packages/"))
-  (package-initialize)
+    (package-initialize)
+    (add-to-list 'package-archives
+	     '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+    (package-refresh-contents)
 #+END_SRC
 
 * Terminal
@@ -25,6 +25,7 @@
   (defalias 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
 *
+
 * Cursor/typing
 ** Highlight
 #+BEGIN_SRC emacs-lisp
@@ -66,25 +67,46 @@
   (scroll-bar-mode -1)
 #+END_SRC
 * etc
-** Prettify symbols
-#+BEGIN_SRC emacs-lisp
-  (global-prettify-symbols-mode t)
-#+END_SRC
 ** Line number + column numbers
 #+BEGIN_SRC emacs-lisp
   (line-number-mode 1)
   (column-number-mode 1)
 #+END_SRC
 
-* Python stuff
+* Coding stuff
 ** elpy
 #+BEGIN_SRC emacs-lisp
-  (defvar myPackages
-    '(better-defaults
-      elpy
-      material-theme
-      )
-    )
+      (defvar myPackages
+        '(better-defaults
+          elpy
+          flycheck
+          material-theme
+          )
+        )
+
+
+    (unless (package-installed-p 'elpy)
+      (package-refresh-contents)
+      (package-install 'elpy))
+    (use-package elpy
+      :ensure t
+      :init)
+  (elpy-enable)
+
+  (when (require 'flycheck nil t)
+    (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+    (add-hook 'elpy-mode-hook 'flycheck-mode))
+#+END_SRC
+
+
+
+** org-babel
+#+BEGIN_SRC emacs-lisp
+  (org-babel-do-load-languages
+   'org-babel-load-languages '((python . t)
+                               (emacs-lisp . t )
+                               (scheme . t)
+                               ))
 #+END_SRC
 * Org
 ** Org bullets
@@ -93,6 +115,11 @@
     :ensure t
     :config
     (add-hook 'org-mode-hook (lambda ()  (org-bullets-mode))))
+#+END_SRC
+** Org keybindings
+*** org-insert-todo-heading
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "M-s-RET") 'org-insert-todo-heading )
 #+END_SRC
 * IDO
 ** Enable ido mode
@@ -105,7 +132,7 @@
 #+END_SRC
 ** ido vertical
 #+BEGIN_SRC emacs-lisp
-  (use-package ido-vertical-mode
+(use-package ido-vertical-mode
     :ensure t
     :init
     (ido-vertical-mode 1))
@@ -154,10 +181,12 @@
 * Dashboard
 #+BEGIN_SRC emacs-lisp
   (use-package dashboard
-    :ensure t
+    :init
+    (add-hook 'after-init-hook 'dashboard-refresh-buffer)
     :config
     (dashboard-setup-startup-hook)
-    (setq dashboard-startup-banner "~/.emacs.d/saintignucius.jpg" )
+    (setq dashboard-startup-banner 'logo )
+    (dashboard-setup-startup-hook)
     (setq dashboard-items '((recents . 10)))
     (setq dashboard-banner-logo-title "I am the bone of my sword"))
 #+END_SRC
@@ -173,4 +202,81 @@
   (use-package swiper
     :ensure t
     :bind("C-s" . swiper))
+#+END_SRC
+* Scheme
+** quack
+#+BEGIN_SRC emacs-lisp
+  (global-font-lock-mode 1)
+  (setq show-paren-delay 0
+        show-paren-style 'parenthesis)
+  (show-paren-mode 1)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (load-file "~/Documents/SICP/geiser/elisp/geiser.el")
+  (load "~/Documents/SICP/geiser/build/elisp/geiser-load")
+    (require 'geiser-install)
+
+  ;(require 'package)
+  ;;; either the stable version:
+
+  ;(add-to-list 'package-archives
+    ;; choose either the stable or the latest git version:
+  ;   '("melpa-stable" . "http://stable.melpa.org/packages/"))
+    ;; '("melpa-unstable" . "http://melpa.org/packages/"))
+
+  ;(package-initialize)
+
+
+  ;(use-package geiser
+  ;    :ensure t
+  ;    :config
+  ;    (setq geiser-active-implementations '(chicken))
+  ;    (setq geiser-chicken-compile-geiser-p nil)
+  ;    (require 'geiser)
+  ;    (add-hook 'scheme-mode-hook 'geiser-mode)
+  ;    (add-to-list 'auto-mode-alist '("\\.scm\\'" . geiser-mode)))
+#+END_SRC
+* Line wrapping
+#+BEGIN_SRC emacs-lisp
+  (visual-line-mode t)
+#+END_SRC
+* Python
+Django shell inside Emacs
+#+BEGIN_SRC emacs-lisp
+  (defun django-shell ()
+    (interactive)
+    (let ((python-shell-interpreter (read-file-name "Locate manage.py "))
+          (python-shell-interpreter-args "shell"))
+      (run-python (python-shell-calculate-command) nil t)))
+#+END_SRC
+
+** django-mode
+* Yasnippet
+#+BEGIN_SRC emacs-lisp
+  (use-package yasnippet
+    :ensure t
+    :config
+    (use-package yasnippet-snippets
+      :ensure t)
+      (yas-reload-all))
+#+END_SRC
+
+* Web-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package web-mode
+    :ensure t
+    :config
+    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+    (setq web-mode-engines-alist
+          '(("django" . "\\.html\\ '")))
+    (setq web-mode-ac-sources-alist
+          '(("css" . (ac-source-css-property))
+            ("html" . (ac-source-words-in-buffer ac-source-abbrrev))))
+    (setq web-mode-enable-auto-closing t))
+#+END_SRC
+* Java
+** emacs-eclim
+#+BEGIN_SRC emacs-lisp
+(require 'eclim)
 #+END_SRC
