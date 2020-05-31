@@ -1,4 +1,4 @@
-* Melpa 
+* Melpa
 ** Package archives
 #+BEGIN_SRC emacs-lisp
   (require 'package)
@@ -20,7 +20,7 @@
 #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "<s-return>" )  'ansi-term)
 #+END_SRC
-** yes-or-no 
+** yes-or-no
 #+BEGIN_SRC emacs-lisp
   (defalias 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
@@ -50,12 +50,12 @@
 			      ))
   (electric-pair-mode t)
 #+END_SRC
-* Scroll 
+* Scroll
 #+BEGIN_SRC emacs-lisp
   (setq scroll-conservatively 100)
 #+END_SRC
 
-* Customize UI 
+* Customize UI
 ** Inhibit startup message
 #+BEGIN_SRC emacs-lisp
   (setq inhibit-startup-message t)
@@ -153,7 +153,7 @@
 * Buffers
 ** enable ibuffer
 #+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "C-x b") 'ibuffer) 
+  (global-set-key (kbd "C-x b") 'ibuffer)
 #+END_SRC
 * Avy
 #+BEGIN_SRC emacs-lisp
@@ -259,7 +259,9 @@ Django shell inside Emacs
     :config
     (use-package yasnippet-snippets
       :ensure t)
-      (yas-reload-all))
+    (yas-reload-all)
+    :init
+    (yas-global-mode 1))
 #+END_SRC
 
 * Web-mode
@@ -276,7 +278,96 @@ Django shell inside Emacs
     (setq web-mode-enable-auto-closing t))
 #+END_SRC
 * Java
+** meghanada
+#+BEGIN_SRC emacs-lisp
+  (require 'meghanada)
+  (add-hook 'java-mode-hook
+            (lambda ()
+              ;; meghanada-mode on
+              (meghanada-mode t)
+              ;; enable telemetry
+              (meghanada-telemetry-enable t)
+              (flycheck-mode +1)
+              (setq c-basic-offset 2)
+              ;; use code format
+              (add-hook 'before-save-hook 'meghanada-code-beautify-before-save)))
+  (cond
+     ((eq system-type 'windows-nt)
+      (setq meghanada-java-path (expand-file-name "bin/java.exe" (getenv "JAVA_HOME")))
+      (setq meghanada-maven-path "mvn.cmd"))
+     (t
+      (setq meghanada-java-path "java")
+      (setq meghanada-maven-path "mvn")))
+#+END_SRC
 ** emacs-eclim
 #+BEGIN_SRC emacs-lisp
-(require 'eclim)
+  (setq eclim-executable "/home/per/.p2/pool/plugins/org.eclim_2.8.0/bin/eclim")
+  (require 'eclim)
+  (add-hook 'java-mode-hook 'eclim-mode)
+  (require 'eclimd)
 #+END_SRC
+* Source code navigation (C++ stuff too)
+
+** ggtags
+
+#+BEGIN_SRC emacs-lisp
+      (unless (package-installed-p 'ggtags)
+        (package-refresh-contents)
+        (package-install 'ggtags))
+
+  (require 'ggtags)
+  (add-hook 'c-mode-common-hook
+            (lambda ()
+              (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
+                (ggtags-mode 1))))
+
+  (define-key ggtags-mode-map (kbd "C-c g s") 'ggtags-find-other-symbol)
+  (define-key ggtags-mode-map (kbd "C-c g h") 'ggtags-view-tag-history)
+  (define-key ggtags-mode-map (kbd "C-c g r") 'ggtags-find-reference)
+  (define-key ggtags-mode-map (kbd "C-c g f") 'ggtags-find-file)
+  (define-key ggtags-mode-map (kbd "C-c g c") 'ggtags-create-tags)
+  (define-key ggtags-mode-map (kbd "C-c g u") 'ggtags-update-tags)
+
+  (define-key ggtags-mode-map (kbd "M-,") 'pop-tag-mark)
+#+END_SRC
+*** Find definitions in current buffer
+#+BEGIN_SRC emacs-lisp
+  (setq-local imenu-create-index-function #'ggtags-build-imenu-index)
+#+END_SRC
+
+** Code completion (company)
+#+BEGIN_SRC emacs-lisp
+  (require 'company)
+  (use-package company
+    :ensure t
+    :config
+    (setq company-idle-delay 0)
+    (setq company-minimum-prefix-length 2))
+
+  (with-eval-after-load 'company
+    (define-key company-active-map (kbd "M-n") nil)
+    (define-key company-active-map (kbd "M-p") nil)
+    (define-key company-active-map (kbd "C-n") #' company-select-next)
+    (define-key company-active-map (kbd "C-p") #' company-select-previous))
+#+END_SRC
+*** Irony
+#+BEGIN_SRC emacs-lisp
+  (use-package company-irony
+    :ensure t
+    :config
+    (require 'company)
+    (add-to-list ' company-backends 'company-irony))
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (use-package irony
+    :ensure t
+    :config
+    (add-hook 'c++-mode-hook 'irony-mode)
+    (add-hook 'c-mode-hook 'irony-mode)
+    (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
+
+  (with-eval-after-load 'company
+    (add-hook 'c++-mode-hook 'company-mode)
+    (add-hook 'c-mode-hook 'company-mode))
+#+END_SRC
+
