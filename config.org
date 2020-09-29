@@ -121,6 +121,10 @@
 #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "M-s-RET") 'org-insert-todo-heading )
 #+END_SRC
+** Fuck you orgmode 9.3 piece of shit
+#+BEGIN_SRC emacs-lisp
+  (require 'org-tempo)
+#+END_SRC
 * IDO
 ** Enable ido mode
 #+BEGIN_SRC emacs-lisp
